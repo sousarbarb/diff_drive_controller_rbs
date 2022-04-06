@@ -1,11 +1,11 @@
 # diff_drive_controller_rbs
 
-**Version 0.0.0** (2022/04/06)
+**Version 0.0.1** (2022/04/06)
 
 This project is based on the
 [`diff_drive_controller`](https://github.com/ros-controls/ros_controllers/tree/melodic-devel/diff_drive_controller)
-from the library `ros_controllers` (
-[git](https://github.com/ros-controls/ros_controllers/tree/melodic-devel),
+from the library `ros_controllers`
+([git](https://github.com/ros-controls/ros_controllers/tree/melodic-devel),
 [wiki](http://wiki.ros.org/ros_controllers)). The main goal is to publish the
 tick count of each wheel instead of publishing directly the odometry.
 
@@ -19,13 +19,16 @@ stack, i.e.,
 
 **With this version, it is possible to do:**
 
+- Base driver for simulating differential robots in Gazebo based on
+  [`diff_drive_controller`](https://github.com/ros-controls/ros_controllers/tree/melodic-devel/diff_drive_controller)
+- Declaration of the plugin in the [`package.xml`](package.xml) file
 - Initialization of the Git repository
 - Initialization of the ROS package
 
 **The next version will add these features:**
 
-- Base driver for simulating differential robots in Gazebo based on
-  [`diff_drive_controller`](https://github.com/ros-controls/ros_controllers/tree/melodic-devel/diff_drive_controller)
+- Modify the plugin to improve the code readability
+- Improve documentation of the plugin
 
 ## ROS
 

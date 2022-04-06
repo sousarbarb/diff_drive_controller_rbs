@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>diff_drive_controller_rbs</name>
-  <version>0.0.0</version>
+  <version>0.0.1</version>
   <description>The diff_drive_controller_rbs package</description>
 
   <!-- Maintainer -->
@@ -33,4 +33,9 @@
   <build_export_depend>boost</build_export_depend>
   <exec_depend>pluginlib</exec_depend>
   <exec_depend>urdf</exec_depend>
+
+  <export>
+    <controller_interface
+      plugin="${prefix}/diff_drive_controller_rbs_plugins.xml"/>
+  </export>
 </package>

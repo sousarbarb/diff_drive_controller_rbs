@@ -2,86 +2,82 @@
 
 namespace diff_drive_controller_rbs {
 
+/**
+ * \brief Speed limiter for the robot's motion
+ *
+ * The class implements the following limiters:
+ * - velocity (m.s⁻¹)
+ * - acceleration (m.s⁻²)
+ * - jerk (m.s⁻³)
+ *
+ * \see http://en.wikipedia.org/wiki/Jerk_%28physics%29#Motion_control
+ */
 class SpeedLimiter {
+ public:
+  bool has_vel_lim;   //!< enable velocity limit
+  bool has_acc_lim;   //!< enable acceleration limit
+  bool has_jerk_lim;  //!< enable jerk limit
+  double min_vel; //!< minimum velocity limit
+  double max_vel; //!< maximum velocity limit
+  double min_acc; //!< minimum acceleration limit
+  double max_acc; //!< maximum acceleration limit
+  double min_jerk;  //!< minimum jerk limit
+  double max_jerk;  //!< maximum jerk limit
+
  public:
   /**
    * \brief Constructor
-   * \param [in] has_velocity_limits     if true, applies velocity limits
-   * \param [in] has_acceleration_limits if true, applies acceleration limits
-   * \param [in] has_jerk_limits         if true, applies jerk limits
-   * \param [in] min_velocity Minimum velocity [m/s], usually <= 0
-   * \param [in] max_velocity Maximum velocity [m/s], usually >= 0
-   * \param [in] min_acceleration Minimum acceleration [m/s^2], usually <= 0
-   * \param [in] max_acceleration Maximum acceleration [m/s^2], usually >= 0
-   * \param [in] min_jerk Minimum jerk [m/s^3], usually <= 0
-   * \param [in] max_jerk Maximum jerk [m/s^3], usually >= 0
+   * \param [in] has_vel_lim  if true, applies velocity limits
+   * \param [in] has_acc_lim  if true, applies acceleration limits
+   * \param [in] has_jerk_lim if true, applies jerk limits
+   * \param [in] min_vel      minimum velocity [m/s] (usually <= 0)
+   * \param [in] max_vel      maximum velocity [m/s] (usually >= 0)
+   * \param [in] min_acc      minimum acceleration [m/s^2] (usually <= 0)
+   * \param [in] max_acc      maximum acceleration [m/s^2] (usually >= 0)
+   * \param [in] min_jerk     minimum jerk [m/s^3] (usually <= 0)
+   * \param [in] max_jerk     maximum jerk [m/s^3] (usually >= 0)
    */
-  SpeedLimiter(
-    bool has_velocity_limits = false,
-    bool has_acceleration_limits = false,
-    bool has_jerk_limits = false,
-    double min_velocity = 0.0,
-    double max_velocity = 0.0,
-    double min_acceleration = 0.0,
-    double max_acceleration = 0.0,
-    double min_jerk = 0.0,
-    double max_jerk = 0.0
-  );
+  explicit SpeedLimiter(
+      bool has_vel_lim=false, bool has_acc_lim=false, bool has_jerk_lim=false,
+      double min_vel=0.0, double max_vel=0.0,
+      double min_acc=0.0, double max_acc=0.0,
+      double min_jerk=0.0, double max_jerk=0.0);
 
   /**
-   * \brief Limit the velocity and acceleration
-   * \param [in, out] v  Velocity [m/s]
-   * \param [in]      v0 Previous velocity to v  [m/s]
-   * \param [in]      v1 Previous velocity to v0 [m/s]
-   * \param [in]      dt Time step [s]
-   * \return Limiting factor (1.0 if none)
+   * \brief Limit the velocity, acceleration, and jerk
+   * \param [in,out] v  velocity [m/s]
+   * \param [in]     v0 previous velocity to v  [m/s]
+   * \param [in]     v1 previous velocity to v0 [m/s]
+   * \param [in]     dt time step [s]
+   * \return            limiting factor (1.0 if none)
    */
-  double limit(double& v, double v0, double v1, double dt);
+  double Limit(double& v, double v0, double v1, double dt) const;
 
   /**
    * \brief Limit the velocity
-   * \param [in, out] v Velocity [m/s]
-   * \return Limiting factor (1.0 if none)
+   * \param [in,out] v velocity [m/s]
+   * \return           limiting factor (1.0 if none)
    */
-  double limit_velocity(double& v);
+  double LimitVelocity(double& v) const;
 
   /**
    * \brief Limit the acceleration
-   * \param [in, out] v  Velocity [m/s]
-   * \param [in]      v0 Previous velocity [m/s]
-   * \param [in]      dt Time step [s]
-   * \return Limiting factor (1.0 if none)
+   * \param [in,out] v  Velocity [m/s]
+   * \param [in]     v0 previous velocity to v  [m/s]
+   * \param [in]     dt time step [s]
+   * \return            limiting factor (1.0 if none)
    */
-  double limit_acceleration(double& v, double v0, double dt);
+  double LimitAcceleration(double& v, double v0, double dt) const;
 
   /**
    * \brief Limit the jerk
-   * \param [in, out] v  Velocity [m/s]
-   * \param [in]      v0 Previous velocity to v  [m/s]
-   * \param [in]      v1 Previous velocity to v0 [m/s]
-   * \param [in]      dt Time step [s]
-   * \return Limiting factor (1.0 if none)
-   * \see http://en.wikipedia.org/wiki/Jerk_%28physics%29#Motion_control
+   * \param [in,out] v  velocity [m/s]
+   * \param [in]     v0 previous velocity to v  [m/s]
+   * \param [in]     v1 previous velocity to v0 [m/s]
+   * \param [in]     dt time step [s]
+   * \return            limiting factor (1.0 if none)
    */
-  double limit_jerk(double& v, double v0, double v1, double dt);
-
- public:
-  // Enable/Disable velocity/acceleration/jerk limits:
-  bool has_velocity_limits;
-  bool has_acceleration_limits;
-  bool has_jerk_limits;
-
-  // Velocity limits:
-  double min_velocity;
-  double max_velocity;
-
-  // Acceleration limits:
-  double min_acceleration;
-  double max_acceleration;
-
-  // Jerk limits:
-  double min_jerk;
-  double max_jerk;
+  double LimitJerk(double& v, double v0, double v1, double dt) const;
 };
 
 } // namespace diff_drive_controller_rbs

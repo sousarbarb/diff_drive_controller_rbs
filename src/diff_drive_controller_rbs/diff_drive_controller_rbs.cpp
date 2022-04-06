@@ -196,7 +196,7 @@ bool DiffDriveController::init(hardware_interface::VelocityJointInterface* hw,
   ROS_INFO_STREAM_NAMED(name_, "Velocity rolling window size of "
       << velocity_rolling_window_size << ".");
 
-  odometry_.setVelocityRollingWindowSize(velocity_rolling_window_size);
+  odometry_.SetVelocityRollingWindowSize(velocity_rolling_window_size);
 
   // Twist command related:
   controller_nh.param("cmd_vel_timeout", cmd_vel_timeout_, cmd_vel_timeout_);
@@ -270,7 +270,7 @@ bool DiffDriveController::init(hardware_interface::VelocityJointInterface* hw,
   const double ws  = wheel_separation_multiplier_   * wheel_separation_;
   const double lwr = left_wheel_radius_multiplier_  * wheel_radius_;
   const double rwr = right_wheel_radius_multiplier_ * wheel_radius_;
-  odometry_.setWheelParams(ws, lwr, rwr);
+  odometry_.SetWheelParams(ws, lwr, rwr);
   ROS_INFO_STREAM_NAMED(name_,
                         "Odometry params : wheel separation " << ws
                                                               << ", left wheel radius "  << lwr
@@ -372,12 +372,12 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
   const double lwr = left_wheel_radius_multiplier_  * wheel_radius_;
   const double rwr = right_wheel_radius_multiplier_ * wheel_radius_;
 
-  odometry_.setWheelParams(ws, lwr, rwr);
+  odometry_.SetWheelParams(ws, lwr, rwr);
 
   // COMPUTE AND PUBLISH ODOMETRY
   if (open_loop_)
   {
-    odometry_.updateOpenLoop(last0_cmd_.lin, last0_cmd_.ang, time);
+    odometry_.UpdateOpenLoop(last0_cmd_.lin, last0_cmd_.ang, time);
   }
   else
   {
@@ -397,7 +397,7 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
     right_pos /= wheel_joints_size_;
 
     // Estimate linear and angular velocity using joint information
-    odometry_.update(left_pos, right_pos, time);
+    odometry_.Update(left_pos, right_pos, time);
   }
 
   // Publish odometry message
@@ -406,17 +406,17 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
     last_state_publish_time_ += publish_period_;
     // Compute and store orientation info
     const geometry_msgs::Quaternion orientation(
-        tf::createQuaternionMsgFromYaw(odometry_.getHeading()));
+        tf::createQuaternionMsgFromYaw(odometry_.GetHeading()));
 
     // Populate odom message and publish
     if (odom_pub_->trylock())
     {
       odom_pub_->msg_.header.stamp = time;
-      odom_pub_->msg_.pose.pose.position.x = odometry_.getX();
-      odom_pub_->msg_.pose.pose.position.y = odometry_.getY();
+      odom_pub_->msg_.pose.pose.position.x = odometry_.GetX();
+      odom_pub_->msg_.pose.pose.position.y = odometry_.GetY();
       odom_pub_->msg_.pose.pose.orientation = orientation;
-      odom_pub_->msg_.twist.twist.linear.x  = odometry_.getLinear();
-      odom_pub_->msg_.twist.twist.angular.z = odometry_.getAngular();
+      odom_pub_->msg_.twist.twist.linear.x  = odometry_.GetLinear();
+      odom_pub_->msg_.twist.twist.angular.z = odometry_.GetAngular();
       odom_pub_->unlockAndPublish();
     }
 
@@ -425,8 +425,8 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
     {
       geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
       odom_frame.header.stamp = time;
-      odom_frame.transform.translation.x = odometry_.getX();
-      odom_frame.transform.translation.y = odometry_.getY();
+      odom_frame.transform.translation.x = odometry_.GetX();
+      odom_frame.transform.translation.y = odometry_.GetY();
       odom_frame.transform.rotation = orientation;
       tf_odom_pub_->unlockAndPublish();
     }
@@ -485,7 +485,7 @@ void DiffDriveController::starting(const ros::Time& time)
   last_state_publish_time_ = time;
   time_previous_ = time;
 
-  odometry_.init(time);
+  odometry_.Init(time);
 }
 
 void DiffDriveController::stopping(const ros::Time& /*time*/)

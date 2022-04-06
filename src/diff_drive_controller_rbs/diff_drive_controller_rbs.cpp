@@ -217,23 +217,32 @@ bool DiffDriveController::init(hardware_interface::VelocityJointInterface* hw,
   ROS_INFO_STREAM_NAMED(name_, "Publishing to tf is " << (enable_odom_tf_?"enabled":"disabled"));
 
   // Velocity and acceleration limits:
-  controller_nh.param("linear/x/has_velocity_limits"    , limiter_lin_.has_velocity_limits    , limiter_lin_.has_velocity_limits    );
-  controller_nh.param("linear/x/has_acceleration_limits", limiter_lin_.has_acceleration_limits, limiter_lin_.has_acceleration_limits);
-  controller_nh.param("linear/x/has_jerk_limits"        , limiter_lin_.has_jerk_limits        , limiter_lin_.has_jerk_limits        );
-  controller_nh.param("linear/x/max_velocity"           , limiter_lin_.max_velocity           ,  limiter_lin_.max_velocity          );
-  controller_nh.param("linear/x/min_velocity"           , limiter_lin_.min_velocity           , -limiter_lin_.max_velocity          );
-  controller_nh.param("linear/x/max_acceleration"       , limiter_lin_.max_acceleration       ,  limiter_lin_.max_acceleration      );
-  controller_nh.param("linear/x/min_acceleration"       , limiter_lin_.min_acceleration       , -limiter_lin_.max_acceleration      );
-  controller_nh.param("linear/x/max_jerk"               , limiter_lin_.max_jerk               ,  limiter_lin_.max_jerk              );
-  controller_nh.param("linear/x/min_jerk"               , limiter_lin_.min_jerk               , -limiter_lin_.max_jerk              );
+  controller_nh.param("linear/x/has_velocity_limits",
+                      limiter_lin_.has_vel_lim , limiter_lin_.has_vel_lim);
+  controller_nh.param("linear/x/has_acceleration_limits",
+                      limiter_lin_.has_acc_lim , limiter_lin_.has_acc_lim);
+  controller_nh.param("linear/x/has_jerk_limits",
+                      limiter_lin_.has_jerk_lim, limiter_lin_.has_jerk_lim);
+  controller_nh.param("linear/x/max_velocity",
+                      limiter_lin_.max_vel ,  limiter_lin_.max_vel);
+  controller_nh.param("linear/x/min_velocity",
+                      limiter_lin_.min_vel , -limiter_lin_.max_vel);
+  controller_nh.param("linear/x/max_acceleration",
+                      limiter_lin_.max_acc ,  limiter_lin_.max_acc);
+  controller_nh.param("linear/x/min_acceleration",
+                      limiter_lin_.min_acc , -limiter_lin_.max_acc);
+  controller_nh.param("linear/x/max_jerk",
+                      limiter_lin_.max_jerk,  limiter_lin_.max_jerk);
+  controller_nh.param("linear/x/min_jerk",
+                      limiter_lin_.min_jerk, -limiter_lin_.max_jerk);
 
-  controller_nh.param("angular/z/has_velocity_limits"    , limiter_ang_.has_velocity_limits    , limiter_ang_.has_velocity_limits    );
-  controller_nh.param("angular/z/has_acceleration_limits", limiter_ang_.has_acceleration_limits, limiter_ang_.has_acceleration_limits);
-  controller_nh.param("angular/z/has_jerk_limits"        , limiter_ang_.has_jerk_limits        , limiter_ang_.has_jerk_limits        );
-  controller_nh.param("angular/z/max_velocity"           , limiter_ang_.max_velocity           ,  limiter_ang_.max_velocity          );
-  controller_nh.param("angular/z/min_velocity"           , limiter_ang_.min_velocity           , -limiter_ang_.max_velocity          );
-  controller_nh.param("angular/z/max_acceleration"       , limiter_ang_.max_acceleration       ,  limiter_ang_.max_acceleration      );
-  controller_nh.param("angular/z/min_acceleration"       , limiter_ang_.min_acceleration       , -limiter_ang_.max_acceleration      );
+  controller_nh.param("angular/z/has_velocity_limits"    , limiter_ang_.has_vel_lim    , limiter_ang_.has_vel_lim    );
+  controller_nh.param("angular/z/has_acceleration_limits", limiter_ang_.has_acc_lim, limiter_ang_.has_acc_lim);
+  controller_nh.param("angular/z/has_jerk_limits"        , limiter_ang_.has_jerk_lim        , limiter_ang_.has_jerk_lim        );
+  controller_nh.param("angular/z/max_velocity"           , limiter_ang_.max_vel           ,  limiter_ang_.max_vel          );
+  controller_nh.param("angular/z/min_velocity"           , limiter_ang_.min_vel           , -limiter_ang_.max_vel          );
+  controller_nh.param("angular/z/max_acceleration"       , limiter_ang_.max_acc       ,  limiter_ang_.max_acc      );
+  controller_nh.param("angular/z/min_acceleration"       , limiter_ang_.min_acc       , -limiter_ang_.max_acc      );
   controller_nh.param("angular/z/max_jerk"               , limiter_ang_.max_jerk               ,  limiter_ang_.max_jerk              );
   controller_nh.param("angular/z/min_jerk"               , limiter_ang_.min_jerk               , -limiter_ang_.max_jerk              );
 
@@ -438,8 +447,8 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
   // Limit velocities and accelerations:
   const double cmd_dt(period.toSec());
 
-  limiter_lin_.limit(curr_cmd.lin, last0_cmd_.lin, last1_cmd_.lin, cmd_dt);
-  limiter_ang_.limit(curr_cmd.ang, last0_cmd_.ang, last1_cmd_.ang, cmd_dt);
+  limiter_lin_.Limit(curr_cmd.lin, last0_cmd_.lin, last1_cmd_.lin, cmd_dt);
+  limiter_ang_.Limit(curr_cmd.ang, last0_cmd_.ang, last1_cmd_.ang, cmd_dt);
 
   last1_cmd_ = last0_cmd_;
   last0_cmd_ = curr_cmd;

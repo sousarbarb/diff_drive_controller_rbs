@@ -84,6 +84,10 @@ private:
   double vel_left_desired_previous_;
   double vel_right_desired_previous_;
 
+  /// Previous position of the wheels
+  double left_pos_old;
+  double right_pos_old;
+
   /// Velocity command related:
   struct Commands
   {

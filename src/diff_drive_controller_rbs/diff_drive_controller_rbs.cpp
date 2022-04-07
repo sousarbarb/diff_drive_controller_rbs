@@ -382,6 +382,10 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
 
   odometry_.SetWheelParams(ws, lwr, rwr);
 
+  // current and previous position of the wheels
+  double left_pos  = 0.0;
+  double right_pos = 0.0;
+
   // COMPUTE AND PUBLISH ODOMETRY
   if (open_loop_)
   {
@@ -389,8 +393,7 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
   }
   else
   {
-    double left_pos  = 0.0;
-    double right_pos = 0.0;
+    // Current position of the wheels [rad]
     for (size_t i = 0; i < wheel_joints_size_; ++i)
     {
       const double lp = left_wheel_joints_[i].getPosition();
@@ -408,7 +411,7 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
     odometry_.Update(left_pos, right_pos, time);
   }
 
-  // Publish odometry message
+  // Publish odometry message + ticks of the motors
   if (last_state_publish_time_ + publish_period_ < time)
   {
     last_state_publish_time_ += publish_period_;
@@ -437,6 +440,34 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
       odom_frame.transform.translation.y = odometry_.GetY();
       odom_frame.transform.rotation = orientation;
       tf_odom_pub_->unlockAndPublish();
+    }
+
+    // Publish ticks counters of the motors>
+    if (publish_motors_ticks_ && motors_ticks_pub_ && motors_ticks_pub_->trylock()) {
+      // Debug
+      ROS_INFO_STREAM_NAMED(
+          name_,
+          "[L] " <<  left_pos  * (180.0/3.141592653589793238463) << "\t" <<
+                     left_pos_old * (180.0/3.141592653589793238463) <<
+          " [R] " << right_pos * (180.0/3.141592653589793238463) << "\t" <<
+                     right_pos_old * (180.0/3.141592653589793238463));
+
+      // Publish data
+      motors_ticks_pub_->msg_.stamp = time;
+      motors_ticks_pub_->msg_.motors_output_array_data.resize(2);
+      for (int i=0; i<2; i++) {
+        motors_ticks_pub_->msg_.motors_output_array_data[i]
+            .encoder_counter = 0;
+        motors_ticks_pub_->msg_.motors_output_array_data[i]
+            .enc_pulses_per_revolution = 0;
+        motors_ticks_pub_->msg_.motors_output_array_data[i]
+            .speed = 0;
+      }
+      motors_ticks_pub_->unlockAndPublish();
+
+      // Previous position of the wheels [rad]
+      left_pos_old  = left_pos;
+      right_pos_old = right_pos;
     }
   }
 
@@ -468,23 +499,6 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
     cmd_vel_pub_->msg_.twist.linear.x = curr_cmd.lin;
     cmd_vel_pub_->msg_.twist.angular.z = curr_cmd.ang;
     cmd_vel_pub_->unlockAndPublish();
-  }
-
-  // Publish ticks counters of the motors>
-  if (publish_motors_ticks_ && motors_ticks_pub_ && motors_ticks_pub_->trylock()) {
-    motors_ticks_pub_->msg_.stamp = time;
-    motors_ticks_pub_->msg_.motors_output_array_data.resize(2);
-
-    for (int i=0; i<2; i++) {
-      motors_ticks_pub_->msg_.motors_output_array_data[i]
-          .encoder_counter = 0;
-      motors_ticks_pub_->msg_.motors_output_array_data[i]
-          .enc_pulses_per_revolution = 0;
-      motors_ticks_pub_->msg_.motors_output_array_data[i]
-          .speed = 0;
-    }
-
-    motors_ticks_pub_->unlockAndPublish();
   }
 
   // Compute wheels velocities:

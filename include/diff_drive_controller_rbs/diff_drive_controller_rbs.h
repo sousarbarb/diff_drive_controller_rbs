@@ -8,6 +8,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <hardware_interface/joint_command_interface.h>
+#include <itrci_hardware/motors_array_output.h>
 #include <memory>
 #include <nav_msgs/Odometry.h>
 #include <realtime_tools/realtime_buffer.h>
@@ -99,6 +100,11 @@ private:
   /// Publish executed commands
   std::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::TwistStamped> > cmd_vel_pub_;
 
+  /// Publisher tick counters of the motors
+  std::shared_ptr
+      <realtime_tools::RealtimePublisher<itrci_hardware::motors_array_output>>
+          motors_ticks_pub_;
+
   /// Odometry related:
   std::shared_ptr<realtime_tools::RealtimePublisher<nav_msgs::Odometry> > odom_pub_;
   std::shared_ptr<realtime_tools::RealtimePublisher<tf::tfMessage> > tf_odom_pub_;
@@ -144,6 +150,9 @@ private:
 
   /// Publish limited velocity:
   bool publish_cmd_;
+
+  /// Publish ticks counters of the motors
+  bool publish_motors_ticks_;
 
   /// Publish wheel data:
   bool publish_wheel_joint_controller_state_;

@@ -124,6 +124,7 @@ DiffDriveController::DiffDriveController()
     , enable_odom_tf_(true)
     , wheel_joints_size_(0)
     , publish_cmd_(false)
+    , publish_motors_ticks_(true)
     , publish_wheel_joint_controller_state_(false)
 {
 }
@@ -249,6 +250,9 @@ bool DiffDriveController::init(hardware_interface::VelocityJointInterface* hw,
   // Publish limited velocity:
   controller_nh.param("publish_cmd", publish_cmd_, publish_cmd_);
 
+  // Publish ticks counters of the motors:
+  controller_nh.param("publish_motors_ticks", publish_motors_ticks_, publish_motors_ticks_);
+
   // Publish wheel data:
   controller_nh.param("publish_wheel_joint_controller_state", publish_wheel_joint_controller_state_, publish_wheel_joint_controller_state_);
 
@@ -279,6 +283,10 @@ bool DiffDriveController::init(hardware_interface::VelocityJointInterface* hw,
   if (publish_cmd_)
   {
     cmd_vel_pub_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::TwistStamped>(controller_nh, "cmd_vel_out", 100));
+  }
+
+  if (publish_motors_ticks_) {
+    motors_ticks_pub_.reset(new realtime_tools::RealtimePublisher<itrci_hardware::motors_array_output>(controller_nh, "motors_ticks", 100));
   }
 
   // Wheel joint controller state:
@@ -460,6 +468,23 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
     cmd_vel_pub_->msg_.twist.linear.x = curr_cmd.lin;
     cmd_vel_pub_->msg_.twist.angular.z = curr_cmd.ang;
     cmd_vel_pub_->unlockAndPublish();
+  }
+
+  // Publish ticks counters of the motors>
+  if (publish_motors_ticks_ && motors_ticks_pub_ && motors_ticks_pub_->trylock()) {
+    motors_ticks_pub_->msg_.stamp = time;
+    motors_ticks_pub_->msg_.motors_output_array_data.resize(2);
+
+    for (int i=0; i<2; i++) {
+      motors_ticks_pub_->msg_.motors_output_array_data[i]
+          .encoder_counter = 0;
+      motors_ticks_pub_->msg_.motors_output_array_data[i]
+          .enc_pulses_per_revolution = 0;
+      motors_ticks_pub_->msg_.motors_output_array_data[i]
+          .speed = 0;
+    }
+
+    motors_ticks_pub_->unlockAndPublish();
   }
 
   // Compute wheels velocities:

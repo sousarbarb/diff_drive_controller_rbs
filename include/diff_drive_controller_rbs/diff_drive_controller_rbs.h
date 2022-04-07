@@ -88,6 +88,12 @@ private:
   double left_pos_old;
   double right_pos_old;
 
+  /// Encoders and transmission data of the wheels motors
+  double mot_enc_res_;
+  double mot_gear_red_;
+  int32_t wh_ticks_[2] = {0,0};
+  bool enable_exact_ticks_;
+
   /// Velocity command related:
   struct Commands
   {

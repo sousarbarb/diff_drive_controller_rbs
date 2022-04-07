@@ -1,6 +1,6 @@
 # diff_drive_controller_rbs
 
-**Version 0.0.1** (2022/04/06)
+**Version 0.0.2** (2022/04/07)
 
 This project is based on the
 [`diff_drive_controller`](https://github.com/ros-controls/ros_controllers/tree/melodic-devel/diff_drive_controller)
@@ -19,6 +19,15 @@ stack, i.e.,
 
 **With this version, it is possible to do:**
 
+- Parameter to define if it is published the exact ticks (based on the 
+  current position of the joints) or the more realistic one (integer 
+  accumulator susceptible to round errors)
+- Publish tick count of each wheel (topic: `motors_ticks`; ROS message:
+  [`motors_output_array_data`](https://gitlab.inesctec.pt/CRIIS/inesctec_robotics_custom_interfaces_stack/-/blob/master/itrci_hardware/msg/motor_output.msg))
+- Modify the plugin to improve the code readability 
+  (`diff_drive_controller_rbs/SpeedLimiter`, 
+  `diff_drive_controller_rbs/Odometry`)
+- Improve documentation of the plugin
 - Base driver for simulating differential robots in Gazebo based on
   [`diff_drive_controller`](https://github.com/ros-controls/ros_controllers/tree/melodic-devel/diff_drive_controller)
 - Declaration of the plugin in the [`package.xml`](package.xml) file
@@ -27,8 +36,7 @@ stack, i.e.,
 
 **The next version will add these features:**
 
-- Modify the plugin to improve the code readability
-- Improve documentation of the plugin
+-  Controller compatible with different wheels radius
 
 ## ROS
 
@@ -53,15 +61,24 @@ stack, i.e.,
 
 ### Parameters
 
-- TBD
+- Same as [`diff_drive_controller`](http://wiki.ros.org/diff_drive_controller)
+- `motors_encoders_resolution`: resolution of the simulated encoders
+- `motors_gear_reduction`: gear reduction of the simulated motors
+- `enable_exact_ticks`:
+  - `true`: accumulated ticks computed based on the joints position (Gazebo 
+    accumulates the position of continuous joint, does not restrain their 
+    range to 360deg)
+  - `false`: ticks accumulate the difference between the current and 
+    previous position of the wheel (susceptible to accumulated rounding errors)
 
 ### Publishes
 
-- TBD
+- Same as [`diff_drive_controller`](http://wiki.ros.org/diff_drive_controller)
+- [`motors_ticks`](https://gitlab.inesctec.pt/CRIIS/inesctec_robotics_custom_interfaces_stack/-/blob/master/itrci_hardware/msg/motors_array_output.msg)
 
 ### Subscribes
 
-- TBD
+- Same as [`diff_drive_controller`](http://wiki.ros.org/diff_drive_controller)
 
 ### Services
 

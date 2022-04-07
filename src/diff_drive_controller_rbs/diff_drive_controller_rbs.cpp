@@ -117,6 +117,11 @@ DiffDriveController::DiffDriveController()
     , wheel_separation_multiplier_(1.0)
     , left_wheel_radius_multiplier_(1.0)
     , right_wheel_radius_multiplier_(1.0)
+    , left_pos_old(0.0)
+    , right_pos_old(0.0)
+    , mot_enc_res_(1024.0)
+    , mot_gear_red_(1.0)
+    , enable_exact_ticks_(true)
     , cmd_vel_timeout_(0.5)
     , allow_multiple_cmd_vel_publishers_(true)
     , base_frame_id_("base_link")
@@ -198,6 +203,17 @@ bool DiffDriveController::init(hardware_interface::VelocityJointInterface* hw,
       << velocity_rolling_window_size << ".");
 
   odometry_.SetVelocityRollingWindowSize(velocity_rolling_window_size);
+
+  controller_nh.param("motors_encoders_resolution", mot_enc_res_, mot_enc_res_);
+  controller_nh.param("motors_gear_reduction", mot_gear_red_, mot_gear_red_);
+  controller_nh.param("enable_exact_ticks", enable_exact_ticks_, enable_exact_ticks_);
+  ROS_INFO_STREAM_NAMED(
+      name_, "Simulated resolution of the motors encoders: " <<
+      mot_enc_res_ <<
+      " (exact ticks: " << (enable_exact_ticks_? "enabled":"disabled") << ").");
+  ROS_INFO_STREAM_NAMED(
+      name_, "Simulated gear reduction of the motors: " <<
+      mot_gear_red_ << ".");
 
   // Twist command related:
   controller_nh.param("cmd_vel_timeout", cmd_vel_timeout_, cmd_vel_timeout_);
@@ -444,24 +460,34 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
 
     // Publish ticks counters of the motors>
     if (publish_motors_ticks_ && motors_ticks_pub_ && motors_ticks_pub_->trylock()) {
-      // Debug
-      ROS_INFO_STREAM_NAMED(
-          name_,
-          "[L] " <<  left_pos  * (180.0/3.141592653589793238463) << "\t" <<
-                     left_pos_old * (180.0/3.141592653589793238463) <<
-          " [R] " << right_pos * (180.0/3.141592653589793238463) << "\t" <<
-                     right_pos_old * (180.0/3.141592653589793238463));
+      // Ticks motors (0: left; 1: right)
+      double wh_dang[2] = { left_pos-left_pos_old , right_pos-right_pos_old };
+      int32_t wh_delta_ticks[2] = {
+          static_cast<int32_t>(std::round(
+              wh_dang[0] * mot_enc_res_ * mot_gear_red_ / (2 * M_PI))) ,
+          static_cast<int32_t>(std::round(
+              wh_dang[1] * mot_enc_res_ * mot_gear_red_ / (2 * M_PI)))
+      };
+      if (enable_exact_ticks_) {
+        wh_ticks_[0] = static_cast<int32_t>(std::round(
+            left_pos  * mot_enc_res_ * mot_gear_red_ / (2 * M_PI)));
+        wh_ticks_[1] = static_cast<int32_t>(std::round(
+            right_pos * mot_enc_res_ * mot_gear_red_ / (2 * M_PI)));
+      } else {
+        wh_ticks_[0] += wh_delta_ticks[0];
+        wh_ticks_[1] += wh_delta_ticks[1];
+      }
 
       // Publish data
       motors_ticks_pub_->msg_.stamp = time;
       motors_ticks_pub_->msg_.motors_output_array_data.resize(2);
       for (int i=0; i<2; i++) {
         motors_ticks_pub_->msg_.motors_output_array_data[i]
-            .encoder_counter = 0;
+            .encoder_counter = wh_ticks_[i];
         motors_ticks_pub_->msg_.motors_output_array_data[i]
-            .enc_pulses_per_revolution = 0;
+            .enc_pulses_per_revolution = mot_enc_res_ * mot_gear_red_;
         motors_ticks_pub_->msg_.motors_output_array_data[i]
-            .speed = 0;
+            .speed = wh_dang[0] / (time-last_state_publish_time_).toSec();
       }
       motors_ticks_pub_->unlockAndPublish();
 

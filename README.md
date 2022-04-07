@@ -1,6 +1,6 @@
 # diff_drive_controller_rbs
 
-**Version 0.0.2** (2022/04/07)
+**Version 0.0.3** (2022/04/07)
 
 This project is based on the
 [`diff_drive_controller`](https://github.com/ros-controls/ros_controllers/tree/melodic-devel/diff_drive_controller)
@@ -19,6 +19,7 @@ stack, i.e.,
 
 **With this version, it is possible to do:**
 
+- Controller compatible with different wheels radius
 - Parameter to define if it is published the exact ticks (based on the 
   current position of the joints) or the more realistic one (integer 
   accumulator susceptible to round errors)
@@ -36,7 +37,7 @@ stack, i.e.,
 
 **The next version will add these features:**
 
--  Controller compatible with different wheels radius
+No further developments foreseen for this project.
 
 ## ROS
 
@@ -70,6 +71,10 @@ stack, i.e.,
     range to 360deg)
   - `false`: ticks accumulate the difference between the current and 
     previous position of the wheel (susceptible to accumulated rounding errors)
+- `left_wheel_radius`: define specifically the left wheel radius 
+  (`wheel_radius` must not be defined to read this parameter)
+- `right_wheel_radius`: define specifically the right wheel radius
+  (`wheel_radius` must not be defined to read this parameter)
 
 ### Publishes
 

@@ -4,6 +4,16 @@
 
 ### Version 0.0
 
+_(summary)_
+
+- Controller compatible with different wheels radius
+- Publish tick count of each wheel (topic: `motors_ticks`; ROS message:
+  [`motors_output_array_data`](https://gitlab.inesctec.pt/CRIIS/inesctec_robotics_custom_interfaces_stack/-/blob/master/itrci_hardware/msg/motor_output.msg))
+
+**Version 0.0.3** (2022/04/07)
+
+- Controller compatible with different wheels radius
+
 **Version 0.0.2** (2022/04/07)
 
 - Parameter to define if it is published the exact ticks (based on the

@@ -113,7 +113,8 @@ DiffDriveController::DiffDriveController()
     : open_loop_(false)
     , command_struct_()
     , wheel_separation_(0.0)
-    , wheel_radius_(0.0)
+    , left_wheel_radius_(0.0)
+    , right_wheel_radius_(0.0)
     , wheel_separation_multiplier_(1.0)
     , left_wheel_radius_multiplier_(1.0)
     , right_wheel_radius_multiplier_(1.0)
@@ -274,7 +275,16 @@ bool DiffDriveController::init(hardware_interface::VelocityJointInterface* hw,
 
   // If either parameter is not available, we need to look up the value in the URDF
   bool lookup_wheel_separation = !controller_nh.getParam("wheel_separation", wheel_separation_);
-  bool lookup_wheel_radius = !controller_nh.getParam("wheel_radius", wheel_radius_);
+  double wheel_radius;
+  bool lookup_wheel_radius = !controller_nh.getParam("wheel_radius", wheel_radius);
+  if (lookup_wheel_radius) {
+    lookup_wheel_radius =
+        (!controller_nh.getParam("left_wheel_radius" , left_wheel_radius_ )) ||
+        (!controller_nh.getParam("right_wheel_radius", right_wheel_radius_));
+  } else {
+    left_wheel_radius_  = wheel_radius;
+    right_wheel_radius_ = wheel_radius;
+  }
 
   if (!setOdomParamsFromUrdf(root_nh,
                              left_wheel_names[0],
@@ -288,8 +298,8 @@ bool DiffDriveController::init(hardware_interface::VelocityJointInterface* hw,
   // Regardless of how we got the separation and radius, use them
   // to set the odometry parameters
   const double ws  = wheel_separation_multiplier_   * wheel_separation_;
-  const double lwr = left_wheel_radius_multiplier_  * wheel_radius_;
-  const double rwr = right_wheel_radius_multiplier_ * wheel_radius_;
+  const double lwr = left_wheel_radius_multiplier_  * left_wheel_radius_;
+  const double rwr = right_wheel_radius_multiplier_ * right_wheel_radius_;
   odometry_.SetWheelParams(ws, lwr, rwr);
   ROS_INFO_STREAM_NAMED(name_,
                         "Odometry params : wheel separation " << ws
@@ -393,8 +403,8 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
 
   // Apply (possibly new) multipliers:
   const double ws  = wheel_separation_multiplier_   * wheel_separation_;
-  const double lwr = left_wheel_radius_multiplier_  * wheel_radius_;
-  const double rwr = right_wheel_radius_multiplier_ * wheel_radius_;
+  const double lwr = left_wheel_radius_multiplier_  * left_wheel_radius_;
+  const double rwr = right_wheel_radius_multiplier_ * right_wheel_radius_;
 
   odometry_.SetWheelParams(ws, lwr, rwr);
 
@@ -714,10 +724,19 @@ bool DiffDriveController::setOdomParamsFromUrdf(ros::NodeHandle& root_nh,
 
   if (lookup_wheel_radius)
   {
-    // Get wheel radius
-    if (!getWheelRadius(model->getLink(left_wheel_joint->child_link_name), wheel_radius_))
+    // Get left wheel radius
+    if (!getWheelRadius(model->getLink(left_wheel_joint->child_link_name),
+                        left_wheel_radius_))
     {
       ROS_ERROR_STREAM_NAMED(name_, "Couldn't retrieve " << left_wheel_name << " wheel radius");
+      return false;
+    }
+
+    // Get right wheel radius
+    if (!getWheelRadius(model->getLink(right_wheel_joint->child_link_name),
+                        right_wheel_radius_))
+    {
+      ROS_ERROR_STREAM_NAMED(name_, "Couldn't retrieve " << right_wheel_name << " wheel radius");
       return false;
     }
   }

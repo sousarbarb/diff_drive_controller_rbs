@@ -2,7 +2,7 @@
 
 ## Version 1.0
 
-[ ] Controller compatible with different wheels radius
+[x] Controller compatible with different wheels radius
 [x] Compute the tick count of each wheel
 [x] Publish tick count of each wheel
 [x] Base driver for simulating differential robots in Gazebo based on

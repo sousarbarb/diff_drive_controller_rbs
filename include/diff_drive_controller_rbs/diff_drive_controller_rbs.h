@@ -127,7 +127,8 @@ private:
   double wheel_separation_;
 
   /// Wheel radius (assuming it's the same for the left and right wheels):
-  double wheel_radius_;
+  double left_wheel_radius_;
+  double right_wheel_radius_;
 
   /// Wheel separation and radius calibration multipliers:
   double wheel_separation_multiplier_;

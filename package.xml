@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>diff_drive_controller_rbs</name>
+  <version>0.0.3</version>
+  <description>The diff_drive_controller_rbs package</description>
+
+  <!-- Maintainer -->
+  <maintainer email="sousa.ricardob@outlook.com">Ricardo B. Sousa</maintainer>
+
+  <!-- License -->
+  <license>GPLv3</license>
+
+  <!-- Wiki -->
+  <!-- <url type="website">http://wiki.ros.org/robot_sim_diff_drive_rbs</url> -->
+
+  <!-- Author -->
+  <author email="sousa.ricardob@outlook.com">Ricardo B. Sousa</author>
+
+  <!-- Dependencies -->
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>controller_interface</depend>
+  <depend>control_msgs</depend>
+  <depend>dynamic_reconfigure</depend>
+  <depend>geometry_msgs</depend>
+  <depend>hardware_interface</depend>
+  <depend>itrci_hardware</depend>
+  <depend>nav_msgs</depend>
+  <depend>realtime_tools</depend>
+  <depend>tf</depend>
+  <build_depend>boost</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>urdf</build_depend>
+  <build_export_depend>boost</build_export_depend>
+  <exec_depend>pluginlib</exec_depend>
+  <exec_depend>urdf</exec_depend>
+
+  <export>
+    <controller_interface
+      plugin="${prefix}/diff_drive_controller_rbs_plugins.xml"/>
+  </export>
+</package>

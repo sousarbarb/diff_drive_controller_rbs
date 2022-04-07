@@ -103,3 +103,6 @@ None.
   [feup:professor](mailto:rbs@fe.up.pt),
   [feup:student](mailto:up201503004@edu.fe.up.pt),
   [inesctec](mailto:ricardo.b.sousa@inesctec.pt))
+- Héber Miguel Sobreira ([gitlab](https://gitlab.inesctec.pt/heber.m.sobreira),
+  [inesctec](mailto:heber.m.sobreira@inesctec.pt))
+- António Paulo Moreira ([feup](mailto:amoreira@fe.up.pt))

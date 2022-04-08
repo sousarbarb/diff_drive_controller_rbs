@@ -531,7 +531,7 @@ void DiffDriveController::update(const ros::Time& time, const ros::Duration& per
         motors_ticks_pub_->msg_.motors_output_array_data[i]
             .enc_pulses_per_revolution = mot_enc_res_ * mot_gear_red_;
         motors_ticks_pub_->msg_.motors_output_array_data[i]
-            .speed = wh_dang[0] / (time-last_state_publish_time_).toSec();
+            .speed = wh_dang[i] / (time-last_state_publish_time_).toSec();
       }
       motors_ticks_pub_->unlockAndPublish();
 

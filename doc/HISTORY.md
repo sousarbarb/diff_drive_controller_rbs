@@ -10,6 +10,10 @@ _(summary)_
 - Publish tick count of each wheel (topic: `motors_ticks`; ROS message:
   [`motors_output_array_data`](https://gitlab.inesctec.pt/CRIIS/inesctec_robotics_custom_interfaces_stack/-/blob/master/itrci_hardware/msg/motor_output.msg))
 
+**Version 0.0.4** (2022/04/08)
+
+- Fixed bug of having measured the same speed in both wheels from `motors_ticks`
+
 **Version 0.0.3** (2022/04/07)
 
 - Controller compatible with different wheels radius

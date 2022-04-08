@@ -1,6 +1,6 @@
 # diff_drive_controller_rbs
 
-**Version 0.0.3** (2022/04/07)
+**Version 0.0.4** (2022/04/08)
 
 This project is based on the
 [`diff_drive_controller`](https://github.com/ros-controls/ros_controllers/tree/melodic-devel/diff_drive_controller)
@@ -17,8 +17,15 @@ of message used is the same used by
 stack, i.e.,
 [`motors_output_array_data`](https://gitlab.inesctec.pt/CRIIS/inesctec_robotics_custom_interfaces_stack/-/blob/master/itrci_hardware/msg/motor_output.msg).
 
+Finally, the controller is capable of dealing with different diameters of the
+wheels. If the robot has unequal wheel diameters, the controller adjusts the 
+velocity set for each wheel. If you want to test the effect of odometry 
+considering equal diameters, set the parameter `wheel_radius` of the 
+controller (for the latter to not go to the URDF to search for each radius).
+
 **With this version, it is possible to do:**
 
+- Fixed bug of having measured the same speed in both wheels from `motors_ticks`
 - Controller compatible with different wheels radius
 - Parameter to define if it is published the exact ticks (based on the 
   current position of the joints) or the more realistic one (integer 
